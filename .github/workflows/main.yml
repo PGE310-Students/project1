@@ -1,0 +1,23 @@
+env:
+  ASSIGNMENT: project1
+on: push
+jobs:
+  conda:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+      - name: Fetch Tests 
+        shell: bash -l {0}
+        run: |
+          curl \
+          --header 'Authorization: token ${{secrets.PGE310_SECRET_TOKEN}}' \
+          --header 'Accept: application/vnd.github.v3.raw' \
+          -O --location "https://api.github.com/repos/PGE310/${ASSIGNMENT}/contents/test.py" \
+          -O --location "https://api.github.com/repos/PGE310/${ASSIGNMENT}/contents/images/eog_oil_wells_in_nd_gold.png" \
+          -O --location "https://api.github.com/repos/PGE310/${ASSIGNMENT}/contents/images/eog_gas_wells_in_nd_gold.png"
+      - name: Run Tests 
+        shell: bash -l {0}
+        run: python -m unittest test.py
